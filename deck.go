@@ -4,11 +4,14 @@ import (
 	"fmt"
 	"io/ioutil"
 	"strings"
+	"os"
+	"math/rand"
+	"time"
 )
 
 type deck []string
 
-func newdeck() deck {
+func NewDeck() deck {
     cards:=deck{}
 	cardsuits:=[]string{"spades","clubs","diamonds","hearts"}
 	cardsnum:=[]string{"ace","2","3","4","5","6"}
@@ -35,7 +38,25 @@ func (d deck) toString() string {
     return strings.Join([]string(d),",")
 }
 
-func (d deck) saveToFile(filename string) error{
+func (d deck) SaveToFile(filename string) error{
 	return ioutil.WriteFile(filename,[]byte(d.toString()),0666)
 }
 
+func NewFileFromDeck(filename string) deck{
+	ds,err:=os.ReadFile(filename)
+	if err != nil{
+		fmt.Print("Error :",err)
+		os.Exit(1)
+	}
+	s:=strings.Split(string(ds),",")
+	return deck(s)
+}
+
+func (d deck) shuffle(){
+	source:=rand.NewSource(time.Now().UnixNano())
+	r:=rand.New(source)
+	for i:=range d {
+		index:=r.Intn(len(d)-1)
+		d[i],d[index]=d[index],d[i]
+	}
+}
